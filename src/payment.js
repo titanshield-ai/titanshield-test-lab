@@ -1,0 +1,50 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// 🧪 TitanShield Test Lab — payment.js  [PR #2 — Security Trend baseline]
+//
+// Tests: Feature 4 (Cross-PR Vulnerability Trending)
+// This is the SECOND PR scan — together with PR #1, TitanShield will show
+// the Security Velocity Score and trend chart.
+//
+// Vulnerabilities:
+//   CWE-276: Incorrect Default Permissions (payment data world-readable)
+//   CWE-311: Missing Encryption of Sensitive Data
+//   CWE-916: Use of Password Hash with Insufficient Computational Effort
+// ═══════════════════════════════════════════════════════════════════════════
+
+const crypto = require('crypto');
+const { DB_CONFIG } = require('./config');
+
+// ── CWE-916: Weak hashing for passwords (MD5) ─────────────────────────────
+// VULNERABLE: MD5 is broken — use bcrypt or Argon2 instead
+function hashPassword(password) {
+    return crypto.createHash('md5').update(password).digest('hex');
+}
+
+// ── CWE-311: Card data stored without encryption ───────────────────────────
+// VULNERABLE: credit card number stored as plaintext in DB
+function storePayment(userId, cardNumber, amount) {
+    const record = {
+        userId,
+        cardNumber,         // PCI violation: no encryption
+        amount,
+        timestamp: Date.now()
+    };
+    // Direct DB insert without field-level encryption
+    global.db.collection('payments').insertOne(record);
+}
+
+// ── CWE-276: Overly permissive payment receipts ────────────────────────────
+// VULNERABLE: any user can query any other user's receipts
+function getReceipts(requesterId, targetUserId) {
+    // no check that requesterId === targetUserId
+    return global.db.collection('payments').find({ userId: targetUserId });
+}
+
+// ── CWE-918: SSRF via payment webhook ─────────────────────────────────────
+const axios = require('axios');
+async function notifyWebhook(webhookUrl, payload) {
+    // VULNERABLE: webhook URL comes from user config — SSRF risk
+    await axios.post(webhookUrl, payload);
+}
+
+module.exports = { hashPassword, storePayment, getReceipts, notifyWebhook };
