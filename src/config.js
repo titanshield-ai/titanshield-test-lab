@@ -1,19 +1,17 @@
 // ═══════════════════════════════════════════════════════════════════════════
-// 🧪 TitanShield Test Lab — config.js
+// 🧪 TitanShield Test Lab — config.js  [UPDATED for HIBP + Entropy Test]
 //
 // Tests: Feature 5 (Secret Entropy + HIBP Cross-Reference)
 //
-// Intentional vulnerabilities:
-//   CWE-798: Hardcoded credentials (AWS key, Stripe, JWT secret, DB password)
+// NEW in this commit: added payment processor credentials and a GitHub PAT
+// These high-entropy strings test TitanShield's entropy scanner.
 // ═══════════════════════════════════════════════════════════════════════════
 
 // ── Hardcoded AWS credentials ─────────────────────────────────────────────
-// TitanShield will detect this pattern AND check HaveIBeenPwned
-const AWS_ACCESS_KEY = "AKIA_TEST_TITANSHIELD_DEMO_KEY_XYZ";  // pattern: AKIA + 16 chars
+const AWS_ACCESS_KEY = "AKIA_TEST_TITANSHIELD_DEMO_KEY_XYZ";
 const AWS_SECRET = "test/TITANSHIELD+DemoSecretKey+ForScan+Lab0001=";
 
 // ── Hardcoded Stripe-style secret key ─────────────────────────────────────
-// High-entropy string assigned to 'secret' variable — entropy scanner catches this
 const STRIPE_KEY = "sk_test_TitanShieldDemoKeyForSecurityScanning123456";
 
 // ── Hardcoded JWT secret (high-entropy → entropy scanner will flag) ───────
@@ -27,8 +25,25 @@ const DB_CONFIG = {
     database: "production_db"
 };
 
-// ── Hardcoded Google API Key (pattern: AIza + 35 chars) ───────────────────
-const GOOGLE_KEY = "AIza_TitanShield_TestKey_ForSecurityScanDemo_1234";
+// ── NEW: GitHub Personal Access Token (classic) ──────────────────────────
+// High-entropy PAT pattern — entropy scanner + pattern match will catch this
+const GITHUB_PAT = "ghp_TitanShieldTestTokenForHIBPScanningABC12345678";
 
-module.exports = { AWS_ACCESS_KEY, AWS_SECRET, STRIPE_KEY, JWT_SECRET, DB_CONFIG, GOOGLE_KEY };
+// ── NEW: Twilio Auth Token ────────────────────────────────────────────────
+// High entropy + RNG pattern typically indicates auth tokens
+const TWILIO_AUTH_TOKEN = "TitanShield_a1b2c3d4e5f6789012345678901234ab";
 
+// ── NEW: SendGrid API key ─────────────────────────────────────────────────
+const SENDGRID_KEY = "SG.TitanShield_TestKey_ForScanLab_abcdef1234567890";
+
+// ── NEW: Payment processor (Braintree) credentials ────────────────────────
+const PAYMENT_CONFIG = {
+    merchantId: "titanshield_test_merchant",
+    publicKey: "TitanShield_pub_testkey89",
+    privateKey: "TitanShieldPriv_TestKey_For_HIBP_Scan_qwerty12345",  // CWE-798
+};
+
+module.exports = {
+    AWS_ACCESS_KEY, AWS_SECRET, STRIPE_KEY, JWT_SECRET, DB_CONFIG,
+    GITHUB_PAT, TWILIO_AUTH_TOKEN, SENDGRID_KEY, PAYMENT_CONFIG
+};
