@@ -16,8 +16,20 @@ const { DB_CONFIG } = require('./config');
 
 // ── CWE-916: Weak hashing for passwords (MD5) ─────────────────────────────
 // VULNERABLE: MD5 is broken — use bcrypt or Argon2 instead
-function hashPassword(password) {
-    return crypto.createHash('md5').update(password).digest('hex');
+// Use a dedicated, trusted library like bcrypt that handles salting automatically.
+// Run `npm install bcrypt`
+const bcrypt = require('bcrypt');
+const saltRounds = 12; // Cost factor - higher is slower and more secure.
+
+async function hashPassword(password) {
+    // bcrypt.hash automatically generates a salt and includes it in the output hash string.
+    const hash = await bcrypt.hash(password, saltRounds);
+    return hash;
+}
+
+// You would also need a function to verify passwords:
+async function verifyPassword(password, hash) {
+    return await bcrypt.compare(password, hash);
 }
 
 // ── CWE-311: Card data stored without encryption ───────────────────────────
