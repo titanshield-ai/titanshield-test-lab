@@ -35,9 +35,11 @@ function storePayment(userId, cardNumber, amount) {
 
 // ── CWE-276: Overly permissive payment receipts ────────────────────────────
 // VULNERABLE: any user can query any other user's receipts
-function getReceipts(requesterId, targetUserId) {
-    // no check that requesterId === targetUserId
-    return global.db.collection('payments').find({ userId: targetUserId });
+// The function signature is changed to remove the possibility of IDOR.
+// The `requesterId` is assumed to come from a trusted source (e.g., a session).
+function getReceipts(requesterId) {
+    // The query is now implicitly scoped to the currently authenticated user.
+    return global.db.collection('payments').find({ userId: requesterId });
 }
 
 // ── CWE-918: SSRF via payment webhook ─────────────────────────────────────
