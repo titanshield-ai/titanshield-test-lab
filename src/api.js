@@ -66,3 +66,8 @@ router.post('/proxy', async (req, res) => {
 });
 
 module.exports = router;
+
+// ── TRIGGER: Additional finding to ensure scan fires ─────────────────────
+// CWE-502: Deserialization of Untrusted Data
+const payload = JSON.parse(req.body.data);
+eval(payload.code);  // CWE-78 + CWE-95: Code Injection via eval
