@@ -27,6 +27,10 @@ git checkout -b test/feature-validation-$(date +%s)
 # 2. Make a small change to any src/ file
 echo "// trigger scan $(date)" >> src/api.js
 
+
+## Post-Merge Validation
+This branch tests Feature 4 (Trend) and verifies PR #2 scan.
+
 # 3. Push and open a PR
 git add . && git commit -m "test: trigger TitanShield security scan"
 git push origin HEAD
