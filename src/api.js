@@ -69,5 +69,45 @@ module.exports = router;
 
 // ── TRIGGER: Additional finding to ensure scan fires ─────────────────────
 // CWE-502: Deserialization of Untrusted Data
-const payload = JSON.parse(req.body.data);
-eval(payload.code);  // CWE-78 + CWE-95: Code Injection via eval
+// Define a safe set of allowed operations at the top of your file or in a separate module
+const allowedOperations = {
+  add: (a, b) => {
+    if (typeof a !== 'number' || typeof b !== 'number') throw new TypeError('Invalid arguments for add');
+    return a + b;
+  },
+  subtract: (a, b) => {
+    if (typeof a !== 'number' || typeof b !== 'number') throw new TypeError('Invalid arguments for subtract');
+    return a - b;
+  },
+  // Add other safe, predefined functions here
+};
+
+// Replace the existing route handler logic with this:
+let payload;
+try {
+  if (typeof req.body.data !== 'string') {
+      return res.status(400).json({ error: 'Invalid payload format. "data" field must be a JSON string.' });
+  }
+  payload = JSON.parse(req.body.data);
+} catch (e) {
+  return res.status(400).json({ error: 'Invalid JSON in "data" field.' });
+}
+
+const { operation, args } = payload;
+if (typeof operation !== 'string' || !allowedOperations.hasOwnProperty(operation)) {
+  console.warn(`Security event: Invalid operation attempted: "${operation}"`);
+  return res.status(400).json({ error: 'Invalid or unsupported operation.' });
+}
+
+if (!Array.isArray(args)) {
+  return res.status(400).json({ error: 'Arguments must be provided as an array.' });
+}
+
+try {
+  const func = allowedOperations[operation];
+  const result = func(...args);
+  res.status(200).json({ success: true, result });
+} catch (error) {
+  console.error(`Error executing operation '${operation}':`, error.message);
+  res.status(500).json({ error: 'An error occurred during operation execution.' });
+}  // CWE-78 + CWE-95: Code Injection via eval
