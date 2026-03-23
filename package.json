@@ -1,0 +1,19 @@
+{
+  "name": "titanshield-test-lab",
+  "version": "1.0.0",
+  "description": "🧪 TitanShield Security Test Lab — intentional vulnerabilities to validate all 7 world-first PR security features",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "echo \"No tests — this is a security vulnerability test lab\""
+  },
+  "dependencies": {
+    "express": "4.18.1",
+    "lodash": "4.17.15",
+    "jsonwebtoken": "8.5.1",
+    "mysql": "2.18.1",
+    "axios": "0.21.1"
+  },
+  "devDependencies": {
+    "nodemon": "2.0.20"
+  }
+}
